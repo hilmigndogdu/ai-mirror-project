@@ -1,5 +1,7 @@
 import cv2
 import mediapipe as mp
+from landmark_logger import LandmarkLogger
+
 
 # MediaPipe modülleri
 mp_pose = mp.solutions.pose
@@ -7,6 +9,9 @@ mp_drawing = mp.solutions.drawing_utils
 
 # Video dosyasını aç (kamera yerine video dosyası)
 cap = cv2.VideoCapture('test.mp4')
+
+logger = LandmarkLogger("pose_landmarks.csv")
+frame_count = 0
 
 # MediaPipe Pose yapılandırması
 with mp_pose.Pose(static_image_mode=False,
@@ -33,6 +38,7 @@ with mp_pose.Pose(static_image_mode=False,
         # Noktaları çiz
         if results.pose_landmarks:
             mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            logger.log(frame_count, results.pose_landmarks)
 
         # Görüntüyü göster
         cv2.imshow('Sanal Ayna - Video Üzerinde Pose Takibi', image)
@@ -41,5 +47,6 @@ with mp_pose.Pose(static_image_mode=False,
         if cv2.waitKey(20) & 0xFF == ord('q'):
             break
 
+logger.close()
 cap.release()
 cv2.destroyAllWindows()
